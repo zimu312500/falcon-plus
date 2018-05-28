@@ -239,7 +239,7 @@ func QueryGraphDrawData(c *gin.Context) {
 	for _, host := range inputs.HostNames {
 		for _, counter := range inputs.Counters {
 			var step int
-			if inputs.Step > 0 {
+			if inputs.Step > 0 && inputs.StartTime != -1 {
 				step = inputs.Step
 			} else {
 				step, err = getCounterStep(host, counter)

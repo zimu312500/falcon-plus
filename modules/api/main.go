@@ -29,6 +29,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 	"github.com/open-falcon/falcon-plus/modules/api/graph"
+	"github.com/open-falcon/falcon-plus/modules/api/rpc"
 	"github.com/spf13/viper"
 )
 
@@ -89,6 +90,7 @@ func main() {
 	//start gin server
 	log.Debugf("will start with port:%v", viper.GetString("web_port"))
 	go controller.StartGin(viper.GetString("web_port"), routes)
+	go rpc.Start()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

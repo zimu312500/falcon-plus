@@ -84,15 +84,16 @@ func DashboardTmpGraphQuery(c *gin.Context) {
 }
 
 type APIGraphCreateReqData struct {
-	ScreenId   int      `json:"screen_id" binding:"required"`
-	Title      string   `json:"title" binding:"required"`
-	Endpoints  []string `json:"endpoints" binding:"required"`
-	Counters   []string `json:"counters" binding:"required"`
-	TimeSpan   int      `json:"timespan"`
-	GraphType  string   `json:"graph_type"`
-	Method     string   `json:"method"`
-	Position   int      `json:"position"`
-	FalconTags string   `json:"falcon_tags"`
+	ScreenId    int      `json:"screen_id" binding:"required"`
+	Title       string   `json:"title" binding:"required"`
+	Endpoints   []string `json:"endpoints" binding:"required"`
+	Counters    []string `json:"counters" binding:"required"`
+	TimeSpan    int      `json:"timespan"`
+	RelativeDay int      `json:"relativeday"`
+	GraphType   string   `json:"graph_type"`
+	Method      string   `json:"method"`
+	Position    int      `json:"position"`
+	FalconTags  string   `json:"falcon_tags"`
 }
 
 func DashboardGraphCreate(c *gin.Context) {
@@ -110,14 +111,15 @@ func DashboardGraphCreate(c *gin.Context) {
 	cs_string := strings.Join(cs, TMP_GRAPH_FILED_DELIMITER)
 
 	d := m.DashboardGraph{
-		Title:     inputs.Title,
-		Hosts:     es_string,
-		Counters:  cs_string,
-		ScreenId:  int64(inputs.ScreenId),
-		TimeSpan:  inputs.TimeSpan,
-		GraphType: inputs.GraphType,
-		Method:    inputs.Method,
-		Position:  inputs.Position,
+		Title:       inputs.Title,
+		Hosts:       es_string,
+		Counters:    cs_string,
+		ScreenId:    int64(inputs.ScreenId),
+		TimeSpan:    inputs.TimeSpan,
+		RelativeDay: inputs.RelativeDay,
+		GraphType:   inputs.GraphType,
+		Method:      inputs.Method,
+		Position:    inputs.Position,
 	}
 	if d.TimeSpan == 0 {
 		d.TimeSpan = 3600
@@ -149,15 +151,16 @@ func DashboardGraphCreate(c *gin.Context) {
 }
 
 type APIGraphUpdateReqData struct {
-	ScreenId   int      `json:"screen_id"`
-	Title      string   `json:"title"`
-	Endpoints  []string `json:"endpoints"`
-	Counters   []string `json:"counters"`
-	TimeSpan   int      `json:"timespan"`
-	GraphType  string   `json:"graph_type"`
-	Method     string   `json:"method"`
-	Position   int      `json:"position"`
-	FalconTags string   `json:"falcon_tags"`
+	ScreenId    int      `json:"screen_id"`
+	Title       string   `json:"title"`
+	Endpoints   []string `json:"endpoints"`
+	Counters    []string `json:"counters"`
+	TimeSpan    int      `json:"timespan"`
+	RelativeDay int      `json:"relativeday"`
+	GraphType   string   `json:"graph_type"`
+	Method      string   `json:"method"`
+	Position    int      `json:"position"`
+	FalconTags  string   `json:"falcon_tags"`
 }
 
 func DashboardGraphUpdate(c *gin.Context) {
@@ -197,6 +200,10 @@ func DashboardGraphUpdate(c *gin.Context) {
 	if inputs.TimeSpan != 0 {
 		d.TimeSpan = inputs.TimeSpan
 	}
+	if inputs.RelativeDay >=0 {
+		d.RelativeDay = inputs.RelativeDay
+	}
+
 	if inputs.GraphType != "" {
 		d.GraphType = inputs.GraphType
 	}
@@ -247,6 +254,7 @@ func DashboardGraphGet(c *gin.Context) {
 		"screen_id":   graph.ScreenId,
 		"graph_type":  graph.GraphType,
 		"timespan":    graph.TimeSpan,
+		"relativeday": graph.RelativeDay,
 		"method":      graph.Method,
 		"position":    graph.Position,
 		"falcon_tags": graph.FalconTags,
@@ -302,6 +310,7 @@ func DashboardGraphGetsByScreenID(c *gin.Context) {
 			"screen_id":   graph.ScreenId,
 			"graph_type":  graph.GraphType,
 			"timespan":    graph.TimeSpan,
+			"relativeday": graph.RelativeDay,
 			"method":      graph.Method,
 			"position":    graph.Position,
 			"falcon_tags": graph.FalconTags,
