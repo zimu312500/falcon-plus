@@ -39,6 +39,7 @@ func main() {
 
 	g.InitRedisConnPool()
 	g.InitHbsClient()
+	g.InitApiClient()
 
 	store.InitHistoryBigMap()
 
@@ -47,6 +48,6 @@ func main() {
 
 	go cron.SyncStrategies()
 	go cron.CleanStale()
-
+	go cron.PullAndJudge()
 	select {}
 }

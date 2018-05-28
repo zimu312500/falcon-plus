@@ -46,6 +46,7 @@ type SafeFilterMap struct {
 
 var (
 	HbsClient     *SingleConnRpcClient
+	ApiClient     *SingleConnRpcClient
 	StrategyMap   = &SafeStrategyMap{M: make(map[string][]model.Strategy)}
 	ExpressionMap = &SafeExpressionMap{M: make(map[string][]*model.Expression)}
 	LastEvents    = &SafeEventMap{M: make(map[string]*model.Event)}
@@ -56,6 +57,13 @@ func InitHbsClient() {
 	HbsClient = &SingleConnRpcClient{
 		RpcServers: Config().Hbs.Servers,
 		Timeout:    time.Duration(Config().Hbs.Timeout) * time.Millisecond,
+	}
+}
+
+func InitApiClient() {
+	ApiClient = &SingleConnRpcClient{
+		RpcServers: Config().Api.Servers,
+		Timeout:    time.Duration(Config().Api.Timeout) * time.Millisecond,
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
+	"log"
 )
 
 type Judge int
@@ -37,8 +38,13 @@ func (this *Judge) Send(items []*model.JudgeItem, resp *model.SimpleRpcResponse)
 		if !exists {
 			continue
 		}
+		//同一个step数据进行累加，最多cache一个周期数据以解决非周期和非实际非同一个endpoint的问题
 		pk := item.PrimaryKey()
-		store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
+		oldItem, ok := store.TmpJudgeItem.Set(pk, item)
+		if ok {
+			log.Printf("%v", oldItem)
+			store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, oldItem, remain, now)
+		}
 	}
 	return nil
 }

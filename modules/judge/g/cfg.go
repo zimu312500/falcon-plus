@@ -37,6 +37,13 @@ type HbsConfig struct {
 	Interval int64    `json:"interval"`
 }
 
+type ApiConfig struct {
+	Servers  []string `json:"servers"`
+	Timeout  int64    `json:"timeout"`
+	Interval int64    `json:"interval"`
+}
+
+
 type RedisConfig struct {
 	Dsn          string `json:"dsn"`
 	MaxIdle      int    `json:"maxIdle"`
@@ -59,6 +66,7 @@ type GlobalConfig struct {
 	Http      *HttpConfig  `json:"http"`
 	Rpc       *RpcConfig   `json:"rpc"`
 	Hbs       *HbsConfig   `json:"hbs"`
+	Api 			*ApiConfig   `json:"api"`
 	Alarm     *AlarmConfig `json:"alarm"`
 }
 
