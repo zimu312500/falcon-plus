@@ -60,7 +60,7 @@ func WorkerRun(item *g.Cluster) {
 
 	now := time.Now().Unix()
 
-	valueMap, err := queryCounterLast(numeratorOperands, denominatorOperands, hostnames, now-int64(item.Step*2), now)
+	valueMap, err := queryCounterLast(numeratorOperands, denominatorOperands, hostnames, now-int64(item.Step*3), now)
 	if err != nil {
 		log.Println("[E]", err, item)
 		return
