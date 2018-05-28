@@ -115,16 +115,20 @@ func handleItems(items []*cmodel.GraphItem) {
 
 		// To Graph
 		first := store.GraphItems.First(key)
-		if first != nil && items[i].Timestamp <= first.Timestamp {
+		if first != nil && items[i].Timestamp < first.Timestamp {
 			continue
 		}
-		store.GraphItems.PushFront(key, items[i], checksum, cfg)
+		//To support unperiod data,through TmpItemMap cache one step data
+		old, ok := store.TmpGraphItem.Set(checksum, items[i])
+		if ok {
+			//log.Printf("old:%v,ok:%t", old, ok)
+			store.GraphItems.PushFront(key, old, checksum, cfg)
+			// To Index
+			index.ReceiveItem(old, checksum)
 
-		// To Index
-		index.ReceiveItem(items[i], checksum)
-
-		// To History
-		store.AddItem(checksum, items[i])
+			// To History
+			store.AddItem(checksum, old)
+		}
 	}
 }
 
@@ -149,13 +153,16 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	}
 	resp.DsType = dsType
 	resp.Step = step
-
+	//此时step为周期all(#3)，即开始时间＝结束时间-step*param.Step
+	if param.Start == -1 && param.Step > 0 {
+		param.Start = param.End - int64(param.Step*step)
+	}
 	start_ts := param.Start - param.Start%int64(step)
 	end_ts := param.End - param.End%int64(step) + int64(step)
 	if end_ts-start_ts-int64(step) < 1 {
 		return nil
 	}
-
+	fmt.Printf("%d,%d\n", start_ts, end_ts)
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
 	key := g.FormRrdCacheKey(md5, dsType, step)
 	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)

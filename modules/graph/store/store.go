@@ -27,6 +27,37 @@ import (
 )
 
 var GraphItems *GraphItemMap
+var TmpGraphItem *TmpItemMap
+
+type TmpItemMap struct {
+	sync.RWMutex
+	B map[string]*cmodel.GraphItem
+}
+
+func (this *TmpItemMap) Get(key string) (*cmodel.GraphItem, bool) {
+	this.RLock()
+	defer this.RUnlock()
+	val, ok := this.B[key]
+	return val, ok
+}
+
+func (this *TmpItemMap) Set(key string, item *cmodel.GraphItem) (*cmodel.GraphItem, bool) {
+	this.Lock()
+	defer this.Unlock()
+	old, ok := this.B[key]
+	if ok {
+		//同一个step数据进行累加
+		if old.Timestamp-item.Timestamp == 0 {
+			old.Value += item.Value
+		} else {
+			this.B[key] = item
+			return old, true
+		}
+	} else {
+		this.B[key] = item
+	}
+	return nil, false
+}
 
 type GraphItemMap struct {
 	sync.RWMutex
@@ -239,6 +270,9 @@ func init() {
 		log.Panicf("store.init, bad size %d\n", size)
 	}
 
+	TmpGraphItem = &TmpItemMap{
+		B: make(map[string]*cmodel.GraphItem),
+	}
 	GraphItems = &GraphItemMap{
 		A:    make([]map[string]*SafeLinkedList, size),
 		Size: size,
